@@ -10,10 +10,10 @@ Try to open the app several times while the proxy into the Service is running.
 What do you see in the logs? Does the number of logs increase each time you open the app?
 
 Before Expose
-![alt text](image.png)
+![alt text](/images/image.png)
 
 After Expose
-![alt text](image-1.png)
+![alt text](/images/image-1.png)
 
 Ada perbedaan jumlah log antara sebelum dan sesudah aplikasi di-expose sebagai Service. Sebelum diekspos, aplikasi diakses langsung di dalam pod dan log mencatat pesan awal (Started HTTP server on port 8080 dan Started UDP server on port 8081).
 
@@ -30,8 +30,41 @@ Opsi -n pada perintah kubectl get memungkinkan kita untuk memilih namespace tert
 
 ## Refleksi Update & Kubernetes Manifest File
 
+1. What is the difference between Rolling Update and Recreate deployment strategy?
 
+    Strategi Rolling Update dan Recreate dalam deployment kubernetes memiliki perbedaan yang cukup signifikan. Rolling Update memungkinkan pembaruan bertahap pada instance-instance ke versi terbaru tanpa menghentikan instance dengan versi lama, sehingga aplikasi tetap berjalan tanpa downtime. Di sisi lain, strategi Recreate membutuhkan penghentian semua instance lama sebelum menggantinya dengan versi baru, yang menyebabkan downtime. 
 
+    Dari segi kompleksitas, Rolling Update lebih rumit tetapi mengurangi downtime dan menjaga ketersediaan aplikasi. Sementara itu, Recreate lebih sederhana namun bisa menyebabkan downtime pada aplikasi. Kedua strategi ini harus dipilih berdasarkan kebutuhan spesifik dari deployment aplikasi.
 
+2. Try deploying the Spring Petclinic REST using Recreate deployment strategy and document
+your attempt.
+
+    Langkah yang dilakukan dalam mengubah deployment strategy menjadi Recreate adalah:
+    
+    - `minikube start` untuk memulai cluster minikube yang baru, khusus deployment Recreate
+    - `minikube addons enable metrics-server` untuk mengaktifkan add-ons metric-server sama seperti pada tutorial sebelumnya
+    - `kubectl apply -f recreate-deployment` dan `kubectl apply -f service,yaml` untuk apply manifest file dengan strategy deployment type Recreate
+    - `kubectl get pods` untuk mengecek status pods sampai sudah mulai running
+    - `minikube service spring-petclinic-rest` untuk mengaktifkan service melalui localhost dan mengakses endpoint `http:127.0.0.1:64008/petclinic/`
+
+    ![alt text](/images/image-2.png)
+    ![alt text](/images/image-3.png)
+
+3.  Prepare different manifest files for executing Recreate deployment strategy
+
+    Terdapat perbedaan manifest file untuk Rolling Update deployment dengan Recreate deployment. Jadi, manifest file (.yaml) yang dihasilkan sebelumnya perlu diedit di bagian:
+    ```
+    ...
+        strategy:
+            type: Recreate
+    ...
+    ```
+
+4. What do you think are the benefits of using Kubernetes manifest files? Recall your experience
+in deploying the app manually and compare it to your experience when deploying the same app
+by applying the manifest files (i.e., invoking `kubectl apply -f` command) to the cluster.
+
+    File manifest kubernetes bersikap seperti resep masakan. Di dalamnya sudah terdapat deskripsi yang jelas tentang proses deployment dan interaksi komponen. Terdapat juga langkah-langkah konfigurasi yang jelas, service yang digunakan, dan resource lainnya yang otomatis dijalankan ketika file manifest tersebut diaplikasikan. Dengan menggunakan file manifest untuk melakukan deployment, deployment dapat menjadi lebih efisien dan lebih konsisten dilakukan di environment yang berbeda-beda.
+    Hal ini menjadi perbedaan yang signifikan ketika deployment harus saya lakukan secara manual. Deployment yang saya lakukan secara manual seringkali mengalami kesalahan konfigurasi dalam prosesnya sehingga kurang efisien.
 
 
